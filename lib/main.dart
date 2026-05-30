@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'theme.dart';
 import 'data_provider.dart';
-import 'screens/login_screen.dart'; // <-- HATI-HATI, PASTIKAN BARIS IMPORT INI ADA
+import 'screens/login_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -13,6 +13,7 @@ void main() async {
   await Hive.openBox('riwayat_box');
   await Hive.openBox('prediksi_box');
   await Hive.openBox('pengaturan_box');
+  await Hive.openBox('notifikasi_box');
 
   runApp(
     MultiProvider(
@@ -29,11 +30,16 @@ class SiramCuyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Dengarkan perubahan status Dark Mode
+    final isDark = context.watch<DataProvider>().isDarkMode;
+
     return MaterialApp(
       title: 'SiramCuy',
-      theme: AppTheme.theme,
+      theme: AppTheme.lightTheme, // Tema Terang
+      darkTheme: AppTheme.darkTheme, // Tema Gelap
+      themeMode: isDark ? ThemeMode.dark : ThemeMode.light, // Penentu otomatis
       debugShowCheckedModeBanner: false,
-      home: const LoginScreen(), // Widget ini sekarang diambil dari screens/login_screen.dart
+      home: const LoginScreen(),
     );
   }
 }

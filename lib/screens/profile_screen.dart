@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import '../theme.dart';
 import 'login_screen.dart';
+import 'settings_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -13,6 +13,8 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   String _namaPengguna = 'Petani';
+  String _lokasiKebun = 'Kebun Raya'; // Tambahkan variabel lokasi agar bisa diedit juga
+  
   final Box _pengaturanBox = Hive.box('pengaturan_box');
 
   @override
@@ -21,24 +23,67 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _muatDataProfil();
   }
 
-  // Mengambil username yang disimpan saat mendaftar/login di awal
+  // Mengambil data profil yang tersimpan di Hive
   void _muatDataProfil() {
     String? savedUser = _pengaturanBox.get('username');
+    String? savedLocation = _pengaturanBox.get('lokasi_kebun', defaultValue: 'Kebun Raya');
+    
     if (savedUser != null && savedUser.isNotEmpty) {
       setState(() {
         _namaPengguna = savedUser;
+        _lokasiKebun = savedLocation!;
       });
     }
   }
 
-  // Logika untuk tombol keluar
-  void _prosesLogout() {
+  // --- LOGIKA FORM EDIT PROFIL (POP-UP DIALOG) ---
+  void _tampilkanDialogEditProfil() {
+    // Controller untuk menangkap input baru, otomatis terisi data lama
+    TextEditingController nameController = TextEditingController(text: _namaPengguna);
+    TextEditingController locationController = TextEditingController(text: _lokasiKebun);
+
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Keluar Akun?', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
-          content: const Text('Sesi Anda akan ditutup dan Anda harus memasukkan password kembali untuk masuk.'),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: const Text(
+            'Edit Profil Anda', 
+            style: TextStyle(color: AppColors.darkBlue, fontSize: 18, fontWeight: FontWeight.bold)
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Nama Pengguna', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.greyText)),
+                const SizedBox(height: 6),
+                TextField(
+                  controller: nameController,
+                  textCapitalization: TextCapitalization.words,
+                  decoration: InputDecoration(
+                    prefixIcon: const Icon(Icons.person_outline),
+                    filled: true,
+                    fillColor: AppColors.bgLight,
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                const Text('Lokasi / Wilayah Kebun', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.greyText)),
+                const SizedBox(height: 6),
+                TextField(
+                  controller: locationController,
+                  textCapitalization: TextCapitalization.words,
+                  decoration: InputDecoration(
+                    prefixIcon: const Icon(Icons.location_on_outlined),
+                    filled: true,
+                    fillColor: AppColors.bgLight,
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                  ),
+                ),
+              ],
+            ),
+          ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context), 
@@ -46,14 +91,61 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             ElevatedButton(
               onPressed: () {
-                // Tutup dialog
+                String namaBaru = nameController.text.trim();
+                String lokasiBaru = locationController.text.trim();
+
+                if (namaBaru.isEmpty || lokasiBaru.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Nama dan Lokasi tidak boleh kosong!'), backgroundColor: Colors.red)
+                  );
+                  return;
+                }
+
+                // 1. Simpan perubahan ke database lokal Hive
+                _pengaturanBox.put('username', namaBaru);
+                _pengaturanBox.put('lokasi_kebun', lokasiBaru);
+
+                // 2. Perbarui tampilan layar secara langsung
+                setState(() {
+                  _namaPengguna = namaBaru;
+                  _lokasiKebun = lokasiBaru;
+                });
+
+                Navigator.pop(context); // Tutup pop-up
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Profil berhasil diperbarui!'), backgroundColor: AppColors.primaryGreen)
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primaryGreen,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))
+              ),
+              child: const Text('Simpan', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // Logika untuk tombol keluar (Logout)
+  void _prosesLogout() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Keluar Akun?', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+          content: const Text('Sesi Anda akan ditutup dan Anda harus memasukkan password kembali untuk masuk perangkat.'),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Batal', style: TextStyle(color: AppColors.greyText))),
+            ElevatedButton(
+              onPressed: () {
                 Navigator.pop(context); 
-                
-                // Hapus semua rute sebelumnya dan kembalikan ke LoginScreen
                 Navigator.pushAndRemoveUntil(
                   context,
                   MaterialPageRoute(builder: (context) => const LoginScreen()),
-                  (route) => false, // Ini memastikan pengguna tidak bisa menekan tombol "Back" di HP untuk masuk lagi
+                  (route) => false,
                 );
               },
               style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
@@ -77,7 +169,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Center(
               child: Stack(
                 children: [
-                  // Avatar placeholder (bisa diganti foto asli jika nanti ditambahkan fitur kamera)
                   const CircleAvatar(
                     radius: 50, 
                     backgroundColor: AppColors.lightGreen,
@@ -86,14 +177,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Positioned(
                     bottom: 0,
                     right: 0,
-                    child: Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(
-                        color: AppColors.primaryGreen, 
-                        shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white, width: 2)
+                    child: GestureDetector(
+                      onTap: _tampilkanDialogEditProfil, // Ketuk ikon kamera juga bisa edit profil
+                      child: Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: AppColors.primaryGreen, 
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 2)
+                        ),
+                        child: const Icon(Icons.camera_alt, color: Colors.white, size: 16),
                       ),
-                      child: const Icon(Icons.camera_alt, color: Colors.white, size: 16),
                     ),
                   )
                 ],
@@ -101,9 +195,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             const SizedBox(height: 16),
             
-            // Nama pengguna dinamis dari Hive
+            // Nama & Lokasi dinamis dari Hive
             Text(_namaPengguna, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.darkBlue)),
-            const Text('Petani Modern • Kebun Raya', style: TextStyle(color: AppColors.greyText)),
+            Text('Petani Modern • $_lokasiKebun', style: const TextStyle(color: AppColors.greyText)),
             const SizedBox(height: 24),
             
             _buildEditButton(),
@@ -125,8 +219,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 label: const Text('Keluar', style: TextStyle(color: Colors.red, fontSize: 16, fontWeight: FontWeight.bold)),
                 style: OutlinedButton.styleFrom(
                   minimumSize: const Size(double.infinity, 55),
-                  side: const BorderSide(color: Colors.red), // Border merah
-                  backgroundColor: Colors.red.shade50, // Latar belakang kemerahan
+                  side: const BorderSide(color: Colors.red),
+                  backgroundColor: Colors.red.shade50,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 ),
               ),
@@ -142,9 +236,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget _buildEditButton() {
     return InkWell(
-      onTap: () {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Fitur edit profil akan segera hadir!')));
-      },
+      onTap: _tampilkanDialogEditProfil, // SEKARANG MEMANGGIL DIALOG POP-UP EDIT
       borderRadius: BorderRadius.circular(20),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -178,7 +270,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
         title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600, color: AppColors.darkBlue)),
         trailing: const Icon(Icons.chevron_right, color: AppColors.greyText),
         onTap: () {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Membuka $title...')));
+          // --- LOGIKA NAVIGASI BARU ---
+          if (title == 'Pengaturan Akun') {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const SettingsScreen()),
+            );
+          } else if (title == 'Notifikasi') {
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Membuka Pusat Notifikasi...')));
+            // Jika Anda sudah menghubungkan notification_screen.dart sebelumnya, biarkan kode navigasi notifikasi Anda di sini
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Membuka $title...')));
+          }
         },
       ),
     );

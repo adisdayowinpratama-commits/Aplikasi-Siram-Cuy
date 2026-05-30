@@ -12,14 +12,33 @@ class AppColors {
 }
 
 class AppTheme {
-  static ThemeData get theme {
+  // TEMA TERANG
+  static ThemeData get lightTheme {
     return ThemeData(
+      brightness: Brightness.light,
       scaffoldBackgroundColor: AppColors.bgLight,
       primaryColor: AppColors.primaryGreen,
       textTheme: GoogleFonts.poppinsTextTheme(),
       colorScheme: ColorScheme.fromSeed(
+        brightness: Brightness.light,
         seedColor: AppColors.primaryGreen,
         primary: AppColors.primaryGreen,
+      ),
+    );
+  }
+
+  // TEMA GELAP
+  static ThemeData get darkTheme {
+    return ThemeData(
+      brightness: Brightness.dark,
+      scaffoldBackgroundColor: const Color(0xFF121212), // Warna latar gelap
+      primaryColor: AppColors.primaryGreen,
+      textTheme: GoogleFonts.poppinsTextTheme(ThemeData.dark().textTheme),
+      colorScheme: ColorScheme.fromSeed(
+        brightness: Brightness.dark,
+        seedColor: AppColors.primaryGreen,
+        primary: AppColors.primaryGreen,
+        surface: const Color(0xFF1E1E1E), // Warna card gelap
       ),
     );
   }

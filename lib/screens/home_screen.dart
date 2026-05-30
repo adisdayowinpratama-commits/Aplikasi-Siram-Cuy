@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../theme.dart';
 import '../data_provider.dart';
+import 'notification_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -32,12 +33,29 @@ class HomeScreen extends StatelessWidget {
           ],
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications_none, color: AppColors.darkBlue),
-            onPressed: () {},
-          ),
-          const SizedBox(width: 8),
-        ],
+  Consumer<DataProvider>(
+    builder: (context, provider, child) {
+      int belumBaca = provider.jumlahBelumBaca;
+      return IconButton(
+        icon: belumBaca > 0
+            ? Badge(
+                label: Text('$belumBaca'),
+                backgroundColor: Colors.red,
+                child: const Icon(Icons.notifications_none, color: AppColors.darkBlue),
+              )
+            : const Icon(Icons.notifications_none, color: AppColors.darkBlue),
+        onPressed: () {
+          // Navigasi ke skrin notifikasi
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const NotificationScreen()),
+          );
+        },
+      );
+    },
+  ),
+  const SizedBox(width: 8),
+],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
