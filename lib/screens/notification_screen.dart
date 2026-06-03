@@ -23,16 +23,17 @@ class _NotificationScreenState extends State<NotificationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final provider = context.watch<DataProvider>();
     final listNotif = provider.riwayatNotifikasi;
 
     return Scaffold(
-      backgroundColor: AppColors.bgLight,
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: AppColors.surfaceWhite,
-        iconTheme: const IconThemeData(color: AppColors.darkBlue),
+        backgroundColor: theme.appBarTheme.backgroundColor ?? theme.colorScheme.surface,
+        iconTheme: theme.appBarTheme.iconTheme,
         elevation: 0,
-        title: const Text('Pusat Notifikasi', style: TextStyle(color: AppColors.darkBlue, fontWeight: FontWeight.bold)),
+        title: Text('Pusat Notifikasi', style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
         actions: [
           if (listNotif.isNotEmpty)
             IconButton(
@@ -45,13 +46,13 @@ class _NotificationScreenState extends State<NotificationScreen> {
         ],
       ),
       body: listNotif.isEmpty
-          ? const Center(
+          ? Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.notifications_off_outlined, size: 64, color: AppColors.greyText),
-                  SizedBox(height: 16),
-                  Text('Tiada notifikasi baru.', style: TextStyle(color: AppColors.greyText)),
+                  Icon(Icons.notifications_off_outlined, size: 64, color: theme.hintColor),
+                  const SizedBox(height: 16),
+                  Text('Tiada notifikasi baru.', style: theme.textTheme.bodyMedium?.copyWith(color: theme.hintColor)),
                 ],
               ),
             )
@@ -68,9 +69,9 @@ class _NotificationScreenState extends State<NotificationScreen> {
                   margin: const EdgeInsets.only(bottom: 12),
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: item['isRead'] ? AppColors.surfaceWhite : Colors.blue.shade50.withOpacity(0.4),
+                    color: item['isRead'] ? theme.cardColor : Colors.blue.shade50.withOpacity(0.4),
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: item['isRead'] ? AppColors.borderGrey : Colors.blue.shade100),
+                    border: Border.all(color: item['isRead'] ? theme.dividerColor : Colors.blue.shade100),
                   ),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -90,12 +91,12 @@ class _NotificationScreenState extends State<NotificationScreen> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(item['judul'], style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: isBahaya ? Colors.orange.shade900 : AppColors.darkBlue)),
-                                Text(formatWaktu, style: const TextStyle(fontSize: 11, color: AppColors.greyText)),
+                                Text(item['judul'], style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: isBahaya ? Colors.orange.shade900 : theme.colorScheme.onSurface)),
+                                Text(formatWaktu, style: theme.textTheme.bodySmall?.copyWith(color: theme.hintColor)),
                               ],
                             ),
                             const SizedBox(height: 6),
-                            Text(item['pesan'], style: const TextStyle(fontSize: 13, color: AppColors.darkBlue, height: 1.4)),
+                            Text(item['pesan'], style: theme.textTheme.bodyMedium?.copyWith(height: 1.4)),
                           ],
                         ),
                       ),

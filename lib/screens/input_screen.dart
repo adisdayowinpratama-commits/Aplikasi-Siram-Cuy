@@ -18,6 +18,7 @@ class _InputScreenState extends State<InputScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final provider = context.watch<DataProvider>();
     final daftarLahan = provider.daftarLahan;
 
@@ -27,28 +28,28 @@ class _InputScreenState extends State<InputScreen> {
     }
 
     return Scaffold(
-      backgroundColor: AppColors.bgLight,
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: AppColors.bgLight,
+        backgroundColor: theme.scaffoldBackgroundColor,
         elevation: 0,
-        title: const Text('Input Data Manual', style: TextStyle(color: AppColors.darkBlue, fontWeight: FontWeight.bold)),
+        title: Text('Input Data Manual', style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Masukkan data kondisi lahan terkini untuk kalibrasi sistem.', style: TextStyle(color: AppColors.greyText)),
+            Text('Masukkan data kondisi lahan terkini untuk kalibrasi sistem.', style: theme.textTheme.bodyMedium?.copyWith(color: theme.hintColor)),
             const SizedBox(height: 32),
             
             // --- BAGIAN PILIH LAHAN DINAMIS ---
-            _buildLabel('PILIH LAHAN'),
+            _buildLabel(context, 'PILIH LAHAN'),
             Row(
               children: [
                 Expanded(
                   child: DropdownButtonFormField<String>(
                     value: _lahanTerpilih,
-                    decoration: _inputDecoration(),
+                    decoration: _inputDecoration(context),
                     isExpanded: true, // Mencegah teks kepanjangan error
                     items: daftarLahan.map((e) => DropdownMenuItem(value: e, child: Text(e, overflow: TextOverflow.ellipsis))).toList(),
                     onChanged: (val) {
@@ -59,7 +60,7 @@ class _InputScreenState extends State<InputScreen> {
                 const SizedBox(width: 8),
                 // Tombol Tambah Lahan
                 Container(
-                  decoration: BoxDecoration(color: AppColors.primaryGreen, borderRadius: BorderRadius.circular(12)),
+                  decoration: BoxDecoration(color: theme.colorScheme.primary, borderRadius: BorderRadius.circular(12)),
                   child: IconButton(
                     icon: const Icon(Icons.add, color: Colors.white),
                     onPressed: () => _tampilkanDialogTambahLahan(context, provider),
@@ -89,32 +90,32 @@ class _InputScreenState extends State<InputScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _buildLabel('PERSENTASE KELEMBAPAN'),
-                Text('${_kelembapan.toInt()}%', style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.primaryGreen)),
+                _buildLabel(context, 'PERSENTASE KELEMBAPAN'),
+                Text('${_kelembapan.toInt()}%', style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold, color: theme.colorScheme.primary)),
               ],
             ),
             Slider(
               value: _kelembapan,
               max: 100,
               divisions: 100,
-              activeColor: AppColors.primaryGreen,
+              activeColor: theme.colorScheme.primary,
               onChanged: (val) => setState(() => _kelembapan = val),
             ),
-            const Row(
+            Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [Text('0%', style: TextStyle(color: AppColors.greyText)), Text('100%', style: TextStyle(color: AppColors.greyText))],
+              children: [Text('0%', style: theme.textTheme.bodySmall?.copyWith(color: theme.hintColor)), Text('100%', style: theme.textTheme.bodySmall?.copyWith(color: theme.hintColor))],
             ),
             const SizedBox(height: 32),
 
             // Kondisi Tanah Visual
-            _buildLabel('KONDISI TANAH VISUAL'),
+            _buildLabel(context, 'KONDISI TANAH VISUAL'),
             Row(
               children: [
-                _buildChoiceChip('Kering', Colors.orange),
+                _buildChoiceChip(context, 'Kering', Colors.orange),
                 const SizedBox(width: 10),
-                _buildChoiceChip('Lembap', Colors.blue),
+                _buildChoiceChip(context, 'Lembap', Colors.blue),
                 const SizedBox(width: 10),
-                _buildChoiceChip('Basah', AppColors.primaryGreen),
+                _buildChoiceChip(context, 'Basah', AppColors.primaryGreen),
               ],
             ),
             const SizedBox(height: 48),
@@ -127,12 +128,12 @@ class _InputScreenState extends State<InputScreen> {
                 onPressed: () {
                   if (_lahanTerpilih == null) return;
                   context.read<DataProvider>().tambahDataBaru(_lahanTerpilih!, _kelembapan, _kondisiTerpilih);
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Data berhasil disimpan!'), backgroundColor: AppColors.primaryGreen));
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: const Text('Data berhasil disimpan!'), backgroundColor: theme.colorScheme.primary));
                   setState(() { _kelembapan = 65.0; _kondisiTerpilih = 'Lembap'; });
                 },
                 icon: const Icon(Icons.save_outlined, color: Colors.white),
                 label: const Text('Simpan Data', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-                style: ElevatedButton.styleFrom(backgroundColor: AppColors.primaryGreen, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))),
+                style: ElevatedButton.styleFrom(backgroundColor: theme.colorScheme.primary, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))),
               ),
             ),
           ],
@@ -147,15 +148,16 @@ class _InputScreenState extends State<InputScreen> {
     showDialog(
       context: context,
       builder: (context) {
+        final theme = Theme.of(context);
         return AlertDialog(
-          title: const Text('Tambah Lahan Baru', style: TextStyle(color: AppColors.darkBlue, fontSize: 18, fontWeight: FontWeight.bold)),
+          title: Text('Tambah Lahan Baru', style: theme.textTheme.titleLarge?.copyWith(fontSize: 18, fontWeight: FontWeight.bold)),
           content: TextField(
             controller: controller,
             decoration: const InputDecoration(hintText: 'Misal: Lahan C - Singkong', border: OutlineInputBorder()),
             textCapitalization: TextCapitalization.words,
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Batal', style: TextStyle(color: AppColors.greyText))),
+            TextButton(onPressed: () => Navigator.pop(context), child: Text('Batal', style: TextStyle(color: theme.colorScheme.primary))),
             ElevatedButton(
               onPressed: () {
                 if (controller.text.isNotEmpty) {
@@ -164,7 +166,7 @@ class _InputScreenState extends State<InputScreen> {
                   Navigator.pop(context);
                 }
               },
-              style: ElevatedButton.styleFrom(backgroundColor: AppColors.primaryGreen),
+              style: ElevatedButton.styleFrom(backgroundColor: theme.colorScheme.primary),
               child: const Text('Tambah', style: TextStyle(color: Colors.white)),
             ),
           ],
@@ -178,11 +180,12 @@ class _InputScreenState extends State<InputScreen> {
     showDialog(
       context: context,
       builder: (context) {
+        final theme = Theme.of(context);
         return AlertDialog(
           title: const Text('Hapus Lahan?', style: TextStyle(color: Colors.red, fontSize: 18, fontWeight: FontWeight.bold)),
           content: Text('Apakah Anda yakin ingin menghapus "$namaLahan" dari daftar?'),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Batal', style: TextStyle(color: AppColors.greyText))),
+            TextButton(onPressed: () => Navigator.pop(context), child: Text('Batal', style: TextStyle(color: theme.colorScheme.primary))),
             ElevatedButton(
               onPressed: () {
                 provider.hapusLahan(namaLahan);
@@ -197,27 +200,34 @@ class _InputScreenState extends State<InputScreen> {
     );
   }
 
-  Widget _buildLabel(String text) => Padding(
-    padding: const EdgeInsets.only(bottom: 8),
-    child: Text(text, style: const TextStyle(fontSize: 12, color: AppColors.greyText, fontWeight: FontWeight.bold, letterSpacing: 1)),
-  );
+  Widget _buildLabel(BuildContext context, String text) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Text(text, style: theme.textTheme.bodySmall?.copyWith(fontSize: 12, color: theme.hintColor, fontWeight: FontWeight.bold, letterSpacing: 1)),
+    );
+  }
 
-  InputDecoration _inputDecoration() => InputDecoration(
-    filled: true,
-    fillColor: Colors.blue.shade50.withOpacity(0.3),
-    contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.borderGrey)),
-  );
+  InputDecoration _inputDecoration(BuildContext context) {
+    final theme = Theme.of(context);
+    return InputDecoration(
+      filled: true,
+      fillColor: theme.inputDecorationTheme.fillColor ?? theme.cardColor,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: theme.dividerColor)),
+    );
+  }
 
-  Widget _buildChoiceChip(String label, Color color) {
+  Widget _buildChoiceChip(BuildContext context, String label, Color color) {
+    final theme = Theme.of(context);
     bool isSelected = _kondisiTerpilih == label;
     return Expanded(
       child: GestureDetector(
         onTap: () => setState(() => _kondisiTerpilih = label),
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 16),
-          decoration: BoxDecoration(color: isSelected ? color.withOpacity(0.1) : AppColors.surfaceWhite, borderRadius: BorderRadius.circular(12), border: Border.all(color: isSelected ? color : AppColors.borderGrey)),
-          child: Center(child: Text(label, style: TextStyle(color: isSelected ? color : AppColors.greyText, fontWeight: FontWeight.bold))),
+          decoration: BoxDecoration(color: isSelected ? color.withOpacity(0.1) : theme.cardColor, borderRadius: BorderRadius.circular(12), border: Border.all(color: isSelected ? color : theme.dividerColor)),
+          child: Center(child: Text(label, style: TextStyle(color: isSelected ? color : theme.hintColor, fontWeight: FontWeight.bold))),
         ),
       ),
     );

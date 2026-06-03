@@ -72,10 +72,11 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _tampilkanPesan(String pesan, {bool isError = false}) {
+    final theme = Theme.of(context);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(pesan), 
-        backgroundColor: isError ? Colors.red : AppColors.primaryGreen,
+        backgroundColor: isError ? Colors.red : theme.colorScheme.primary,
         behavior: SnackBarBehavior.floating,
       )
     );
@@ -83,8 +84,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: AppColors.bgLight,
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -95,18 +97,18 @@ class _LoginScreenState extends State<LoginScreen> {
                 // Logo Aplikasi di Atas (Gaya FB)
                 Container(
                   padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(color: Colors.blue.shade50, shape: BoxShape.circle),
-                  child: const Icon(Icons.grass, color: AppColors.primaryGreen, size: 50),
+                  decoration: BoxDecoration(color: theme.colorScheme.primary.withOpacity(0.15), shape: BoxShape.circle),
+                  child: Icon(Icons.grass, color: theme.colorScheme.primary, size: 50),
                 ),
                 const SizedBox(height: 16),
-                const Text('SiramCuy', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.darkBlue)),
+                Text('SiramCuy', style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold, color: theme.colorScheme.onBackground)),
                 const SizedBox(height: 48),
 
                 // MENENTUKAN APAKAH MENAMPILKAN KARTU PROFIL ATAU FORM MANUAL
                 if (!_tampilkanFormManual && _savedUsername != null) 
-                  _buildTampilanAkunTersimpan()
+                  _buildTampilanAkunTersimpan(theme)
                 else 
-                  _buildTampilanFormManual(),
+                  _buildTampilanFormManual(theme),
               ],
             ),
           ),
@@ -118,7 +120,7 @@ class _LoginScreenState extends State<LoginScreen> {
   // ==========================================
   // 1. TAMPILAN GAYA FACEBOOK (AKUN TERSIMPAN)
   // ==========================================
-  Widget _buildTampilanAkunTersimpan() {
+  Widget _buildTampilanAkunTersimpan(ThemeData theme) {
     return Column(
       children: [
         // Kartu Profil (Bisa diklik)
@@ -128,31 +130,31 @@ class _LoginScreenState extends State<LoginScreen> {
           child: Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppColors.surfaceWhite,
+              color: theme.cardColor,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.borderGrey),
+              border: Border.all(color: theme.dividerColor),
               boxShadow: [
-                BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4))
+                BoxShadow(color: Colors.black.withOpacity(theme.brightness == Brightness.dark ? 0.08 : 0.05), blurRadius: 10, offset: const Offset(0, 4))
               ]
             ),
             child: Row(
               children: [
-                const CircleAvatar(
+                CircleAvatar(
                   radius: 30,
-                  backgroundColor: AppColors.lightGreen,
-                  child: Icon(Icons.person, size: 30, color: AppColors.primaryGreen),
+                  backgroundColor: theme.colorScheme.primary.withOpacity(0.15),
+                  child: Icon(Icons.person, size: 30, color: theme.colorScheme.primary),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(_savedUsername!, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.darkBlue)),
-                      const Text('Ketuk untuk masuk', style: TextStyle(fontSize: 12, color: AppColors.greyText)),
+                      Text(_savedUsername!, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                      Text('Ketuk untuk masuk', style: theme.textTheme.bodySmall?.copyWith(color: theme.hintColor)),
                     ],
                   ),
                 ),
-                const Icon(Icons.more_vert, color: AppColors.greyText),
+                Icon(Icons.more_vert, color: theme.hintColor),
               ],
             ),
           ),
@@ -168,8 +170,8 @@ class _LoginScreenState extends State<LoginScreen> {
               _passController.clear();
             });
           },
-          icon: const Icon(Icons.add, color: AppColors.primaryGreen),
-          label: const Text('Masuk ke Akun Lain', style: TextStyle(color: AppColors.primaryGreen, fontWeight: FontWeight.bold)),
+          icon: Icon(Icons.add, color: theme.colorScheme.primary),
+          label: Text('Masuk ke Akun Lain', style: TextStyle(color: theme.colorScheme.primary, fontWeight: FontWeight.bold)),
         ),
         
         // Tombol Hapus Akun Tersimpan (Opsional UX FB)
@@ -183,7 +185,7 @@ class _LoginScreenState extends State<LoginScreen> {
             });
             _tampilkanPesan('Akun dari perangkat ini telah dihapus.');
           },
-          child: const Text('Hapus Akun dari Perangkat', style: TextStyle(color: AppColors.greyText, fontSize: 12)),
+          child: Text('Hapus Akun dari Perangkat', style: theme.textTheme.bodySmall?.copyWith(color: theme.hintColor)),
         )
       ],
     );
@@ -198,6 +200,7 @@ class _LoginScreenState extends State<LoginScreen> {
       isScrollControlled: true, // Agar form naik saat keyboard muncul
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
       builder: (context) {
+        final bottomSheetTheme = Theme.of(context);
         return Padding(
           padding: EdgeInsets.only(
             bottom: MediaQuery.of(context).viewInsets.bottom, // Menghindari tertutup keyboard
@@ -206,13 +209,13 @@ class _LoginScreenState extends State<LoginScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const CircleAvatar(
+              CircleAvatar(
                 radius: 24,
-                backgroundColor: AppColors.lightGreen,
-                child: Icon(Icons.person, color: AppColors.primaryGreen),
+                backgroundColor: bottomSheetTheme.colorScheme.primary.withOpacity(0.15),
+                child: Icon(Icons.person, color: bottomSheetTheme.colorScheme.primary),
               ),
               const SizedBox(height: 12),
-              Text('Masuk sebagai $_savedUsername', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.darkBlue)),
+              Text('Masuk sebagai $_savedUsername', style: bottomSheetTheme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
               const SizedBox(height: 24),
               TextField(
                 controller: tempPassController,
@@ -220,9 +223,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 autofocus: true, // Otomatis memunculkan keyboard
                 decoration: InputDecoration(
                   hintText: 'Masukkan password Anda',
-                  prefixIcon: const Icon(Icons.lock_outline),
+                  prefixIcon: Icon(Icons.lock_outline, color: bottomSheetTheme.hintColor),
                   filled: true,
-                  fillColor: AppColors.surfaceWhite,
+                  fillColor: bottomSheetTheme.cardColor,
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                 ),
               ),
@@ -232,7 +235,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 height: 50,
                 child: ElevatedButton(
                   onPressed: () => _prosesLoginDariProfil(tempPassController.text.trim()),
-                  style: ElevatedButton.styleFrom(backgroundColor: AppColors.primaryGreen, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+                  style: ElevatedButton.styleFrom(backgroundColor: bottomSheetTheme.colorScheme.primary, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
                   child: const Text('Masuk', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
                 ),
               ),
@@ -247,12 +250,12 @@ class _LoginScreenState extends State<LoginScreen> {
   // ==========================================
   // 2. TAMPILAN FORM MANUAL (AKUN BARU / LAIN)
   // ==========================================
-  Widget _buildTampilanFormManual() {
+  Widget _buildTampilanFormManual(ThemeData theme) {
     return Column(
       children: [
-        _buildTextField('Username', 'Masukkan username', Icons.person_outline, _userController),
+        _buildTextField('Username', 'Masukkan username', Icons.person_outline, _userController, theme: theme),
         const SizedBox(height: 16),
-        _buildTextField('Password', 'Masukkan password', Icons.lock_outline, _passController, isPassword: true),
+        _buildTextField('Password', 'Masukkan password', Icons.lock_outline, _passController, isPassword: true, theme: theme),
         const SizedBox(height: 32),
         SizedBox(
           width: double.infinity,
@@ -260,7 +263,7 @@ class _LoginScreenState extends State<LoginScreen> {
           child: ElevatedButton(
             onPressed: _prosesLoginManual,
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primaryGreen,
+              backgroundColor: theme.colorScheme.primary,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
             child: const Text('Masuk', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600)),
@@ -276,28 +279,28 @@ class _LoginScreenState extends State<LoginScreen> {
                 _tampilkanFormManual = false;
               });
             },
-            child: const Text('Kembali ke Akun Tersimpan', style: TextStyle(color: AppColors.primaryGreen, fontWeight: FontWeight.bold)),
+            child: Text('Kembali ke Akun Tersimpan', style: TextStyle(color: theme.colorScheme.primary, fontWeight: FontWeight.bold)),
           )
       ],
     );
   }
 
-  Widget _buildTextField(String label, String hint, IconData icon, TextEditingController controller, {bool isPassword = false}) {
+  Widget _buildTextField(String label, String hint, IconData icon, TextEditingController controller, {bool isPassword = false, required ThemeData theme}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(fontWeight: FontWeight.w600, color: AppColors.darkBlue)),
+        Text(label, style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600, color: theme.colorScheme.onBackground)),
         const SizedBox(height: 8),
         TextField(
           controller: controller,
           obscureText: isPassword,
           decoration: InputDecoration(
             hintText: hint,
-            prefixIcon: Icon(icon, color: Colors.grey.shade400),
+            prefixIcon: Icon(icon, color: theme.hintColor),
             filled: true,
-            fillColor: AppColors.surfaceWhite,
-            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.borderGrey)),
-            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.primaryGreen)),
+            fillColor: theme.cardColor,
+            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: theme.dividerColor)),
+            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: theme.colorScheme.primary)),
           ),
         ),
       ],

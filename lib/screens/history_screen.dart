@@ -17,6 +17,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final provider = context.watch<DataProvider>();
     
     // Siapkan daftar opsi filter
@@ -30,15 +31,15 @@ class _HistoryScreenState extends State<HistoryScreen> {
     return DefaultTabController(
       length: 2,
       child: Scaffold(
-        backgroundColor: AppColors.bgLight,
+        backgroundColor: theme.scaffoldBackgroundColor,
         appBar: AppBar(
-          backgroundColor: AppColors.surfaceWhite,
+          backgroundColor: theme.cardColor,
           elevation: 0,
-          title: const Text('Riwayat Data', style: TextStyle(color: AppColors.darkBlue, fontWeight: FontWeight.bold)),
-          bottom: const TabBar(
-            labelColor: AppColors.primaryGreen,
-            unselectedLabelColor: AppColors.greyText,
-            indicatorColor: AppColors.primaryGreen,
+          title: Text('Riwayat Data', style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+          bottom: TabBar(
+            labelColor: theme.colorScheme.primary,
+            unselectedLabelColor: theme.hintColor,
+            indicatorColor: theme.colorScheme.primary,
             indicatorWeight: 3,
             tabs: [
               Tab(icon: Icon(Icons.edit_document), text: 'Input Nyata'),
@@ -51,18 +52,18 @@ class _HistoryScreenState extends State<HistoryScreen> {
             // --- BAGIAN FILTER UI ---
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-              color: AppColors.surfaceWhite,
+              color: theme.cardColor,
               child: Row(
                 children: [
-                  const Icon(Icons.filter_alt_outlined, color: AppColors.greyText, size: 20),
+                  Icon(Icons.filter_alt_outlined, color: theme.hintColor, size: 20),
                   const SizedBox(width: 12),
                   Expanded(
                     child: DropdownButtonHideUnderline(
                       child: DropdownButton<String>(
                         isExpanded: true,
                         value: _selectedLahan,
-                        icon: const Icon(Icons.keyboard_arrow_down, color: AppColors.primaryGreen),
-                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.darkBlue),
+                        icon: Icon(Icons.keyboard_arrow_down, color: theme.colorScheme.primary),
+                        style: theme.textTheme.bodyLarge?.copyWith(fontSize: 14, fontWeight: FontWeight.bold),
                         items: opsiLahan.map((e) => DropdownMenuItem(value: e, child: Text(e, overflow: TextOverflow.ellipsis))).toList(),
                         onChanged: (val) {
                           if (val != null) setState(() => _selectedLahan = val);
@@ -73,7 +74,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 ],
               ),
             ),
-            const Divider(height: 1, thickness: 1, color: AppColors.borderGrey),
+            Divider(height: 1, thickness: 1, color: theme.dividerColor),
 
             // --- TAB KONTEN ---
             Expanded(
@@ -98,7 +99,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     }).toList();
 
     if (filteredData.isEmpty) {
-      return Center(child: Text('Belum ada data pada "$_selectedLahan".', style: const TextStyle(color: AppColors.greyText)));
+      return Center(child: Text('Belum ada data pada "$_selectedLahan".', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).hintColor)));
     }
 
     return ListView.builder(
@@ -131,7 +132,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     }).toList();
 
     if (filteredData.isEmpty) {
-      return const Center(child: Text('Belum ada data prediksi.', style: TextStyle(color: AppColors.greyText)));
+      return Center(child: Text('Belum ada data prediksi.', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).hintColor)));
     }
 
     return ListView.builder(
@@ -163,13 +164,14 @@ class _HistoryScreenState extends State<HistoryScreen> {
     required IconData ikon, 
     required Color warna
   }) {
+    final theme = Theme.of(context);
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surfaceWhite, 
+        color: theme.cardColor, 
         borderRadius: BorderRadius.circular(16), 
-        border: Border.all(color: AppColors.borderGrey)
+        border: Border.all(color: theme.dividerColor)
       ),
       child: Row(
         children: [
@@ -186,20 +188,20 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(nilai, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.darkBlue)),
+                    Text(nilai, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
                     // Menampilkan Nama Lahan secara ringkas di pojok kanan atas
                     Expanded(
                       child: Text(
                         namaLahan, 
                         textAlign: TextAlign.right, 
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.darkBlue)
+                        style: theme.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600)
                       ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 4),
-                Text(waktu, style: const TextStyle(fontSize: 12, color: AppColors.greyText)),
+                Text(waktu, style: theme.textTheme.bodySmall?.copyWith(color: theme.hintColor)),
               ],
             ),
           ),

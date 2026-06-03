@@ -3,6 +3,7 @@ import 'package:hive/hive.dart';
 import '../theme.dart';
 import 'login_screen.dart';
 import 'settings_screen.dart';
+import 'notification_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -38,25 +39,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   // --- LOGIKA FORM EDIT PROFIL (POP-UP DIALOG) ---
   void _tampilkanDialogEditProfil() {
-    // Controller untuk menangkap input baru, otomatis terisi data lama
     TextEditingController nameController = TextEditingController(text: _namaPengguna);
     TextEditingController locationController = TextEditingController(text: _lokasiKebun);
 
     showDialog(
       context: context,
       builder: (context) {
+        final theme = Theme.of(context);
         return AlertDialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          title: const Text(
+          title: Text(
             'Edit Profil Anda', 
-            style: TextStyle(color: AppColors.darkBlue, fontSize: 18, fontWeight: FontWeight.bold)
+            style: theme.textTheme.titleLarge?.copyWith(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Nama Pengguna', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.greyText)),
+                Text('Nama Pengguna', style: theme.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold, color: theme.hintColor)),
                 const SizedBox(height: 6),
                 TextField(
                   controller: nameController,
@@ -64,12 +65,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   decoration: InputDecoration(
                     prefixIcon: const Icon(Icons.person_outline),
                     filled: true,
-                    fillColor: AppColors.bgLight,
+                    fillColor: theme.inputDecorationTheme.fillColor ?? theme.cardColor,
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
                   ),
                 ),
                 const SizedBox(height: 16),
-                const Text('Lokasi / Wilayah Kebun', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.greyText)),
+                Text('Lokasi / Wilayah Kebun', style: theme.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold, color: theme.hintColor)),
                 const SizedBox(height: 6),
                 TextField(
                   controller: locationController,
@@ -87,7 +88,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context), 
-              child: const Text('Batal', style: TextStyle(color: AppColors.greyText))
+              child: Text('Batal', style: TextStyle(color: theme.colorScheme.primary))
             ),
             ElevatedButton(
               onPressed: () {
@@ -159,8 +160,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: AppColors.bgLight,
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: Column(
           children: [
@@ -196,17 +198,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const SizedBox(height: 16),
             
             // Nama & Lokasi dinamis dari Hive
-            Text(_namaPengguna, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.darkBlue)),
-            Text('Petani Modern • $_lokasiKebun', style: const TextStyle(color: AppColors.greyText)),
+            Text(_namaPengguna, style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
+            Text('Petani Modern • $_lokasiKebun', style: theme.textTheme.bodyMedium?.copyWith(color: theme.hintColor)),
             const SizedBox(height: 24),
             
             _buildEditButton(),
             const SizedBox(height: 32),
 
             // --- MENU LIST ---
-            _buildMenuItem(Icons.person_outline, 'Pengaturan Akun'),
-            _buildMenuItem(Icons.notifications_none, 'Notifikasi'),
-            _buildMenuItem(Icons.help_outline, 'Bantuan & Panduan'),
+            _buildMenuItem(context, Icons.person_outline, 'Pengaturan Akun'),
+            _buildMenuItem(context, Icons.notifications_none, 'Notifikasi'),
+            _buildMenuItem(context, Icons.help_outline, 'Bantuan & Panduan'),
             
             const Spacer(),
             
@@ -253,13 +255,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildMenuItem(IconData icon, String title) {
+  Widget _buildMenuItem(BuildContext context, IconData icon, String title) {
+    final theme = Theme.of(context);
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
       decoration: BoxDecoration(
-        color: AppColors.surfaceWhite,
+        color: theme.cardColor,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.borderGrey),
+        border: Border.all(color: theme.dividerColor),
       ),
       child: ListTile(
         leading: Container(
@@ -267,8 +270,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
           decoration: BoxDecoration(color: Colors.blue.shade50, borderRadius: BorderRadius.circular(8)),
           child: Icon(icon, color: Colors.blue.shade800),
         ),
-        title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600, color: AppColors.darkBlue)),
-        trailing: const Icon(Icons.chevron_right, color: AppColors.greyText),
+        title: Text(title, style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600, color: theme.colorScheme.onSurface)),
+        trailing: Icon(Icons.chevron_right, color: theme.hintColor),
         onTap: () {
           // --- LOGIKA NAVIGASI BARU ---
           if (title == 'Pengaturan Akun') {
@@ -277,8 +280,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
               MaterialPageRoute(builder: (context) => const SettingsScreen()),
             );
           } else if (title == 'Notifikasi') {
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Membuka Pusat Notifikasi...')));
-            // Jika Anda sudah menghubungkan notification_screen.dart sebelumnya, biarkan kode navigasi notifikasi Anda di sini
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const NotificationScreen()),
+            );
           } else {
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Membuka $title...')));
           }

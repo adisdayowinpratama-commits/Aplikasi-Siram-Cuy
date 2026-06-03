@@ -30,11 +30,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                _buildPasswordField('Password Lama', passLama),
+                _buildPasswordField(context, 'Password Lama', passLama),
                 const SizedBox(height: 12),
-                _buildPasswordField('Password Baru', passBaru),
+                _buildPasswordField(context, 'Password Baru', passBaru),
                 const SizedBox(height: 12),
-                _buildPasswordField('Konfirmasi Password Baru', passKonfirmasi),
+                _buildPasswordField(context, 'Konfirmasi Password Baru', passKonfirmasi),
               ],
             ),
           ),
@@ -104,36 +104,37 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: AppColors.bgLight,
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: AppColors.surfaceWhite,
-        iconTheme: const IconThemeData(color: AppColors.darkBlue),
+        backgroundColor: theme.appBarTheme.backgroundColor ?? theme.colorScheme.surface,
+        iconTheme: theme.appBarTheme.iconTheme,
         elevation: 0,
-        title: const Text('Pengaturan Akun', style: TextStyle(color: AppColors.darkBlue, fontWeight: FontWeight.bold)),
+        title: Text('Pengaturan Akun', style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
       ),
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
           // --- TAMBAHAN UNTUK DARK MODE ---
-          const Padding(
-            padding: EdgeInsets.only(left: 8, bottom: 8, top: 16),
-            child: Text('TAMPILAN', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.greyText, letterSpacing: 1)),
+          Padding(
+            padding: const EdgeInsets.only(left: 8, bottom: 8, top: 16),
+            child: Text('TAMPILAN', style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.bold, letterSpacing: 1)),
           ),
           Consumer<DataProvider>(
             builder: (context, provider, child) {
               return Container(
                 margin: const EdgeInsets.only(bottom: 12),
                 decoration: BoxDecoration(
-                  color: provider.isDarkMode ? Colors.grey.shade900 : AppColors.surfaceWhite, 
-                  borderRadius: BorderRadius.circular(16), 
-                  border: Border.all(color: provider.isDarkMode ? Colors.grey.shade800 : AppColors.borderGrey)
+                  color: theme.cardColor,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: theme.dividerColor),
                 ),
                 child: SwitchListTile(
-                  title: Text('Mode Gelap', style: TextStyle(fontWeight: FontWeight.w600, color: provider.isDarkMode ? Colors.white : AppColors.darkBlue)),
-                  subtitle: Text('Gunakan tema gelap', style: TextStyle(fontSize: 12, color: provider.isDarkMode ? Colors.grey.shade400 : AppColors.greyText)),
+                  title: Text('Mode Gelap', style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600)),
+                  subtitle: Text('Gunakan tema gelap', style: theme.textTheme.bodySmall?.copyWith(color: theme.hintColor)),
                   value: provider.isDarkMode,
-                  activeColor: AppColors.primaryGreen,
+                  activeColor: theme.colorScheme.primary,
                   secondary: Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
@@ -156,21 +157,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
             padding: EdgeInsets.only(left: 8, bottom: 8),
             child: Text('KEAMANAN', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.greyText, letterSpacing: 1)),
           ),
-          _buildSettingsItem(Icons.lock_outline, 'Ubah Password', 'Ganti kata sandi untuk masuk aplikasi', onTap: _tampilkanDialogUbahPassword),
+          _buildSettingsItem(context, Icons.lock_outline, 'Ubah Password', 'Ganti kata sandi untuk masuk aplikasi', onTap: _tampilkanDialogUbahPassword),
           
           const SizedBox(height: 24),
           const Padding(
             padding: EdgeInsets.only(left: 8, bottom: 8),
             child: Text('MANAJEMEN DATA', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.greyText, letterSpacing: 1)),
           ),
-          _buildSettingsItem(Icons.delete_forever_outlined, 'Reset Data Musim Tanam', 'Hapus semua grafik dan riwayat tanah', isDanger: true, onTap: _tampilkanDialogResetData),
+          _buildSettingsItem(context, Icons.delete_forever_outlined, 'Reset Data Musim Tanam', 'Hapus semua grafik dan riwayat tanah', isDanger: true, onTap: _tampilkanDialogResetData),
           
           const SizedBox(height: 24),
           const Padding(
             padding: EdgeInsets.only(left: 8, bottom: 8),
             child: Text('TENTANG', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.greyText, letterSpacing: 1)),
           ),
-          _buildSettingsItem(Icons.info_outline, 'Versi Aplikasi', 'SiramCuy v1.0.0 (Offline Mode)', hasArrow: false),
+          _buildSettingsItem(context, Icons.info_outline, 'Versi Aplikasi', 'SiramCuy v1.0.0 (Offline Mode)', hasArrow: false),
         ],
       ),
     );
@@ -178,33 +179,35 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   // --- WIDGET PENDUKUNG ---
 
-  Widget _buildSettingsItem(IconData icon, String title, String subtitle, {bool isDanger = false, bool hasArrow = true, VoidCallback? onTap}) {
+  Widget _buildSettingsItem(BuildContext context, IconData icon, String title, String subtitle, {bool isDanger = false, bool hasArrow = true, VoidCallback? onTap}) {
+    final theme = Theme.of(context);
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(color: AppColors.surfaceWhite, borderRadius: BorderRadius.circular(16), border: Border.all(color: AppColors.borderGrey)),
+      decoration: BoxDecoration(color: theme.cardColor, borderRadius: BorderRadius.circular(16), border: Border.all(color: theme.dividerColor)),
       child: ListTile(
         leading: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(color: isDanger ? Colors.red.shade50 : Colors.blue.shade50, borderRadius: BorderRadius.circular(8)),
           child: Icon(icon, color: isDanger ? Colors.red : Colors.blue.shade800),
         ),
-        title: Text(title, style: TextStyle(fontWeight: FontWeight.w600, color: isDanger ? Colors.red : AppColors.darkBlue)),
-        subtitle: Text(subtitle, style: const TextStyle(fontSize: 12, color: AppColors.greyText)),
-        trailing: hasArrow ? const Icon(Icons.chevron_right, color: AppColors.greyText) : null,
+        title: Text(title, style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600, color: isDanger ? Colors.red : theme.colorScheme.onSurface)),
+        subtitle: Text(subtitle, style: theme.textTheme.bodySmall),
+        trailing: hasArrow ? Icon(Icons.chevron_right, color: theme.hintColor) : null,
         onTap: onTap,
       ),
     );
   }
 
-  Widget _buildPasswordField(String label, TextEditingController controller) {
+  Widget _buildPasswordField(BuildContext context, String label, TextEditingController controller) {
+    final theme = Theme.of(context);
     return TextField(
       controller: controller,
       obscureText: true,
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: const TextStyle(color: AppColors.greyText, fontSize: 14),
+        labelStyle: theme.textTheme.bodySmall?.copyWith(color: theme.hintColor),
         filled: true,
-        fillColor: AppColors.bgLight,
+        fillColor: theme.inputDecorationTheme.fillColor ?? theme.colorScheme.surface,
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       ),

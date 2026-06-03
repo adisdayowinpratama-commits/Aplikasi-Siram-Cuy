@@ -21,6 +21,7 @@ class _MonitorScreenState extends State<MonitorScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     // Ambil data mentah dari provider
     final provider = context.watch<DataProvider>();
     
@@ -69,11 +70,11 @@ class _MonitorScreenState extends State<MonitorScreen> {
     }
 
     return Scaffold(
-      backgroundColor: AppColors.bgLight,
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: AppColors.bgLight,
+        backgroundColor: theme.scaffoldBackgroundColor,
         elevation: 0,
-        title: const Text('Ringkasan Data', style: TextStyle(color: AppColors.darkBlue, fontWeight: FontWeight.bold)),
+        title: Text('Ringkasan Data', style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
@@ -82,9 +83,9 @@ class _MonitorScreenState extends State<MonitorScreen> {
             // --- FILTER DROPDOWN DINAMIS ---
             Row(
               children: [
-                Expanded(child: _buildFilterLahan(opsiLahan)),
+                Expanded(child: _buildFilterLahan(context, opsiLahan)),
                 const SizedBox(width: 12),
-                Expanded(child: _buildFilterRentang()),
+                Expanded(child: _buildFilterRentang(context)),
               ],
             ),
             const SizedBox(height: 24),
@@ -93,23 +94,23 @@ class _MonitorScreenState extends State<MonitorScreen> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppColors.surfaceWhite,
+                color: theme.cardColor,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.borderGrey),
+                border: Border.all(color: theme.dividerColor),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Tren Kelembapan', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.darkBlue)),
+                  Text('Tren Kelembapan', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
                   const SizedBox(height: 16),
-                  _buildLegend(),
+                  _buildLegend(context),
                   const SizedBox(height: 24),
                   
                   // GRAFIK FL_CHART
                   SizedBox(
                     height: 200,
                     child: dataGrafik.isEmpty
-                        ? const Center(child: Text('Belum ada data pada filter ini.', style: TextStyle(color: AppColors.greyText)))
+                        ? Center(child: Text('Belum ada data pada filter ini.', style: theme.textTheme.bodyMedium?.copyWith(color: theme.hintColor)))
                         : _buildLineChart(dataGrafik, provider.riwayatPrediksi),
                   ),
                 ],
@@ -120,9 +121,9 @@ class _MonitorScreenState extends State<MonitorScreen> {
             // --- STATS CARDS ---
             Row(
               children: [
-                Expanded(child: _buildStatItem('Rata-rata', '$rataRata%', 'Dari data terpilih', AppColors.primaryGreen)),
+                Expanded(child: _buildStatItem(context, 'Rata-rata', '$rataRata%', 'Dari data terpilih', AppColors.primaryGreen)),
                 const SizedBox(width: 16),
-                Expanded(child: _buildStatItem('Penyiraman', '$jumlahSiram kali', 'Berdasarkan data', Colors.blue)),
+                Expanded(child: _buildStatItem(context, 'Penyiraman', '$jumlahSiram kali', 'Berdasarkan data', Colors.blue)),
               ],
             )
           ],
@@ -133,23 +134,24 @@ class _MonitorScreenState extends State<MonitorScreen> {
 
   // --- WIDGET FILTER DROPDOWN (KINI BERFUNGSI) ---
 
-  Widget _buildFilterLahan(List<String> opsiLahan) {
+  Widget _buildFilterLahan(BuildContext context, List<String> opsiLahan) {
+    final theme = Theme.of(context);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-      decoration: BoxDecoration(color: AppColors.surfaceWhite, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.borderGrey)),
+      decoration: BoxDecoration(color: theme.cardColor, borderRadius: BorderRadius.circular(12), border: Border.all(color: theme.dividerColor)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Padding(
-            padding: EdgeInsets.only(top: 8.0),
-            child: Text('Zona Terpilih', style: TextStyle(fontSize: 10, color: AppColors.greyText)),
+          Padding(
+            padding: const EdgeInsets.only(top: 8.0),
+            child: Text('Zona Terpilih', style: theme.textTheme.bodySmall?.copyWith(color: theme.hintColor)),
           ),
           DropdownButtonHideUnderline(
             child: DropdownButton<String>(
               isExpanded: true,
               value: _selectedLahan,
-              icon: const Icon(Icons.keyboard_arrow_down, size: 16, color: AppColors.greyText),
-              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.darkBlue),
+              icon: Icon(Icons.keyboard_arrow_down, size: 16, color: theme.hintColor),
+              style: theme.textTheme.bodyLarge?.copyWith(fontSize: 13, fontWeight: FontWeight.bold),
               items: opsiLahan.map((e) => DropdownMenuItem(value: e, child: Text(e, overflow: TextOverflow.ellipsis))).toList(),
               onChanged: (val) {
                 if (val != null) setState(() => _selectedLahan = val);
@@ -161,23 +163,24 @@ class _MonitorScreenState extends State<MonitorScreen> {
     );
   }
 
-  Widget _buildFilterRentang() {
+  Widget _buildFilterRentang(BuildContext context) {
+    final theme = Theme.of(context);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-      decoration: BoxDecoration(color: AppColors.surfaceWhite, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.borderGrey)),
+      decoration: BoxDecoration(color: theme.cardColor, borderRadius: BorderRadius.circular(12), border: Border.all(color: theme.dividerColor)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Padding(
-            padding: EdgeInsets.only(top: 8.0),
-            child: Text('Rentang Waktu', style: TextStyle(fontSize: 10, color: AppColors.greyText)),
+          Padding(
+            padding: const EdgeInsets.only(top: 8.0),
+            child: Text('Rentang Waktu', style: theme.textTheme.bodySmall?.copyWith(color: theme.hintColor)),
           ),
           DropdownButtonHideUnderline(
             child: DropdownButton<String>(
               isExpanded: true,
               value: _selectedRentang,
-              icon: const Icon(Icons.calendar_today_outlined, size: 14, color: AppColors.greyText),
-              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.darkBlue),
+              icon: Icon(Icons.calendar_today_outlined, size: 14, color: theme.hintColor),
+              style: theme.textTheme.bodyLarge?.copyWith(fontSize: 13, fontWeight: FontWeight.bold),
               items: _opsiRentang.map((e) => DropdownMenuItem(value: e, child: Text(e, overflow: TextOverflow.ellipsis))).toList(),
               onChanged: (val) {
                 if (val != null) setState(() => _selectedRentang = val);
@@ -213,7 +216,7 @@ class _MonitorScreenState extends State<MonitorScreen> {
         gridData: FlGridData(
           show: true,
           drawVerticalLine: false,
-          getDrawingHorizontalLine: (value) => FlLine(color: AppColors.borderGrey, strokeWidth: 1),
+          getDrawingHorizontalLine: (value) => FlLine(color: Theme.of(context).dividerColor, strokeWidth: 1),
         ),
         titlesData: FlTitlesData(
           rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
@@ -235,13 +238,13 @@ class _MonitorScreenState extends State<MonitorScreen> {
           LineChartBarData(
             spots: titikNyata,
             isCurved: true,
-            color: AppColors.primaryGreen,
+            color: Theme.of(context).colorScheme.primary,
             barWidth: 3,
             isStrokeCapRound: true,
             dotData: const FlDotData(show: true),
             belowBarData: BarAreaData(
               show: true,
-              color: AppColors.lightGreen.withOpacity(0.3),
+              color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
             ),
           ),
           if (titikPrediksi.isNotEmpty)
@@ -260,27 +263,29 @@ class _MonitorScreenState extends State<MonitorScreen> {
   }
 
   // --- WIDGET PENDUKUNG ---
-  Widget _buildLegend() {
-    return const Wrap(
+  Widget _buildLegend(BuildContext context) {
+    final theme = Theme.of(context);
+    return Wrap(
       spacing: 12,
       children: [
-        _LegendItem(color: AppColors.primaryGreen, text: 'Data Nyata'),
-        _LegendItem(color: Colors.orange, text: 'Prediksi Sistem'),
+        _LegendItem(color: theme.colorScheme.primary, text: 'Data Nyata'),
+        const _LegendItem(color: Colors.orange, text: 'Prediksi Sistem'),
       ],
     );
   }
 
-  Widget _buildStatItem(String title, String val, String sub, Color color) {
+  Widget _buildStatItem(BuildContext context, String title, String val, String sub, Color color) {
+    final theme = Theme.of(context);
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(color: AppColors.surfaceWhite, borderRadius: BorderRadius.circular(16), border: Border.all(color: AppColors.borderGrey)),
+      decoration: BoxDecoration(color: theme.cardColor, borderRadius: BorderRadius.circular(16), border: Border.all(color: theme.dividerColor)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: const TextStyle(fontSize: 12, color: AppColors.greyText)),
+          Text(title, style: theme.textTheme.bodySmall?.copyWith(color: theme.hintColor)),
           const SizedBox(height: 8),
-          Text(val, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.darkBlue)),
-          Text(sub, style: TextStyle(fontSize: 10, color: color, fontWeight: FontWeight.bold)),
+          Text(val, style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
+          Text(sub, style: theme.textTheme.bodySmall?.copyWith(fontSize: 10, color: color, fontWeight: FontWeight.bold)),
         ],
       ),
     );
@@ -298,7 +303,7 @@ class _LegendItem extends StatelessWidget {
       children: [
         CircleAvatar(radius: 4, backgroundColor: color),
         const SizedBox(width: 6),
-        Text(text, style: const TextStyle(fontSize: 11, color: AppColors.greyText)),
+        Text(text, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).hintColor)),
       ],
     );
   }

@@ -9,6 +9,11 @@ class AppColors {
   static const Color bgLight = Color(0xFFF7F9FA);
   static const Color surfaceWhite = Colors.white;
   static const Color borderGrey = Color(0xFFEEEEEE);
+
+  static const Color bgDark = Color(0xFF121212);
+  static const Color surfaceDark = Color(0xFF1E1E1E);
+  static const Color borderDark = Color(0xFF2C2C2C);
+  static const Color mutedTextDark = Color(0xFFB0B6C0);
 }
 
 class AppTheme {
