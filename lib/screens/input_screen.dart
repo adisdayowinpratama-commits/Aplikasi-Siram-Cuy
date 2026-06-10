@@ -48,7 +48,7 @@ class _InputScreenState extends State<InputScreen> {
               children: [
                 Expanded(
                   child: DropdownButtonFormField<String>(
-                    value: _lahanTerpilih,
+                    initialValue: _lahanTerpilih,
                     decoration: _inputDecoration(context),
                     isExpanded: true, // Mencegah teks kepanjangan error
                     items: daftarLahan.map((e) => DropdownMenuItem(value: e, child: Text(e, overflow: TextOverflow.ellipsis))).toList(),

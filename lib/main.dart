@@ -14,6 +14,7 @@ void main() async {
   await Hive.openBox('prediksi_box');
   await Hive.openBox('pengaturan_box');
   await Hive.openBox('notifikasi_box');
+  await Hive.openBox('jadwal_box');
 
   runApp(
     MultiProvider(

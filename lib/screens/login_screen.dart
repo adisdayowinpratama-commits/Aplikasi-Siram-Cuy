@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import '../theme.dart';
 import '../main_layout.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -101,7 +100,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: Icon(Icons.grass, color: theme.colorScheme.primary, size: 50),
                 ),
                 const SizedBox(height: 16),
-                Text('SiramCuy', style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold, color: theme.colorScheme.onBackground)),
+                Text('SiramCuy', style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold, color: theme.colorScheme.onSurface)),
                 const SizedBox(height: 48),
 
                 // MENENTUKAN APAKAH MENAMPILKAN KARTU PROFIL ATAU FORM MANUAL
@@ -289,7 +288,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600, color: theme.colorScheme.onBackground)),
+        Text(label, style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600, color: theme.colorScheme.onSurface)),
         const SizedBox(height: 8),
         TextField(
           controller: controller,

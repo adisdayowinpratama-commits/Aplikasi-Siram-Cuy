@@ -5,11 +5,14 @@ class DataProvider extends ChangeNotifier {
   List<Map<String, dynamic>> riwayatData = [];
   List<Map<String, dynamic>> riwayatPrediksi = [];
   List<Map<String, dynamic>> riwayatNotifikasi = []; // <-- Simpan data notifikasi
+  List<Map<String, dynamic>> riwayatJadwal = [];
 
   final Box _riwayatBox = Hive.box('riwayat_box');
   final Box _prediksiBox = Hive.box('prediksi_box');
   final Box _pengaturanBox = Hive.box('pengaturan_box');
   final Box _notifikasiBox = Hive.box('notifikasi_box'); // <-- Box notifikasi
+  final Box _jadwalBox = Hive.box('jadwal_box'); // <-- Box jadwal
+  
 
   List<String> daftarLahan = [];
 
@@ -21,7 +24,7 @@ class DataProvider extends ChangeNotifier {
     riwayatData = _riwayatBox.values.map((e) => Map<String, dynamic>.from(e)).toList().reversed.toList();
     riwayatPrediksi = _prediksiBox.values.map((e) => Map<String, dynamic>.from(e)).toList().reversed.toList();
     riwayatNotifikasi = _notifikasiBox.values.map((e) => Map<String, dynamic>.from(e)).toList().reversed.toList(); // <-- Muat notifikasi
-    
+    riwayatJadwal = _jadwalBox.values.map((e) => Map<String, dynamic>.from(e)).toList().reversed.toList(); // <-- Muat jadwal
     List<dynamic> lahanTersimpan = _pengaturanBox.get('daftar_lahan', defaultValue: ['Lahan A - Tomat Cherry', 'Lahan B - Cabai Rawit']);
     daftarLahan = lahanTersimpan.map((e) => e.toString()).toList();
 
@@ -156,5 +159,36 @@ class DataProvider extends ChangeNotifier {
   void toggleTema(bool modeGelap) {
     _pengaturanBox.put('is_dark_mode', modeGelap);
     notifyListeners(); // Refresh seluruh aplikasi agar tema berubah seketika
+  }
+
+  void tambahJadwalPenyiraman(String namaLahan, int jam, int menit) {
+    final newJadwal = {
+      'lahan': namaLahan,
+      'jam': jam,
+      'menit': menit,
+      'waktuDibuat': DateTime.now().toIso8601String(),
+    };
+    
+    _jadwalBox.add(newJadwal);
+    riwayatJadwal.add(newJadwal);
+
+    // Otomatis buat notifikasi bahwa jadwal berhasil terpasang
+    final newNotif = {
+      'judul': 'Jadwal Siram Terpasang',
+      'pesan': 'Penyiraman untuk $namaLahan berhasil dijadwalkan pukul ${jam.toString().padLeft(2, '0')}:${menit.toString().padLeft(2, '0')}.',
+      'waktu': DateTime.now().toIso8601String(),
+      'isRead': false,
+      'tipe': 'info'
+    };
+    Hive.box('notifikasi_box').add(newNotif);
+    riwayatNotifikasi.insert(0, newNotif);
+
+    notifyListeners();
+  }
+
+  void hapusJadwalPenyiraman(int index) {
+    _jadwalBox.deleteAt(index);
+    riwayatJadwal.removeAt(index);
+    notifyListeners();
   }
 }

@@ -134,7 +134,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   title: Text('Mode Gelap', style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600)),
                   subtitle: Text('Gunakan tema gelap', style: theme.textTheme.bodySmall?.copyWith(color: theme.hintColor)),
                   value: provider.isDarkMode,
-                  activeColor: theme.colorScheme.primary,
+                  activeThumbColor: theme.colorScheme.primary,
                   secondary: Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(

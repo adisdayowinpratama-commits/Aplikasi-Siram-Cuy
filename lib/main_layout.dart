@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'theme.dart';
 import 'screens/home_screen.dart';
 import 'screens/input_screen.dart';
 import 'screens/monitor_screen.dart';
@@ -32,14 +31,14 @@ class _MainLayoutState extends State<MainLayout> {
       bottomNavigationBar: NavigationBarTheme(
         data: NavigationBarThemeData(
           indicatorColor: theme.colorScheme.primary.withOpacity(0.18),
-          labelTextStyle: MaterialStateProperty.resolveWith((states) {
-            if (states.contains(MaterialState.selected)) {
+          labelTextStyle: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.selected)) {
               return theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.primary, fontWeight: FontWeight.w600);
             }
             return theme.textTheme.labelSmall?.copyWith(color: theme.hintColor);
           }),
-          iconTheme: MaterialStateProperty.resolveWith((states) {
-            if (states.contains(MaterialState.selected)) {
+          iconTheme: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.selected)) {
               return IconThemeData(color: theme.colorScheme.primary);
             }
             return IconThemeData(color: theme.hintColor);

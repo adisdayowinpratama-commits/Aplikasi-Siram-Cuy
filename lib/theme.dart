@@ -14,6 +14,10 @@ class AppColors {
   static const Color surfaceDark = Color(0xFF1E1E1E);
   static const Color borderDark = Color(0xFF2C2C2C);
   static const Color mutedTextDark = Color(0xFFB0B6C0);
+
+  static const Color orangeBg = Color(0xFFFFF3E0);
+  static const Color blueBg = Color(0xFFE3F2FD);
+  static const Color greenBg = Color(0xFFE8F5E9);
 }
 
 class AppTheme {
@@ -47,4 +51,20 @@ class AppTheme {
       ),
     );
   }
+}
+
+extension BuildContextThemeExtension on BuildContext {
+  Color get bg => Theme.of(this).scaffoldBackgroundColor;
+  Color get surface => Theme.of(this).colorScheme.surface;
+  Color get textMain =>
+      Theme.of(this).textTheme.bodyLarge?.color ??
+      Theme.of(this).colorScheme.onBackground;
+  Color get textMuted =>
+      Theme.of(this).textTheme.bodySmall?.color ??
+      Theme.of(this).colorScheme.onSurfaceVariant;
+  Color get border => Theme.of(this).dividerColor;
+
+  Color get orangeBg => AppColors.orangeBg;
+  Color get blueBg => AppColors.blueBg;
+  Color get greenBg => AppColors.greenBg;
 }
